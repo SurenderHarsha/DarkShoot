@@ -1,4 +1,5 @@
 import pygame as p
+import pygame.gfxdraw as pgf
 import sys
 import math
 
@@ -8,14 +9,26 @@ green = (0, 255, 0)
 blue = (0, 0, 128)
 red = (255, 0, 0)
 yellow = (255, 255, 0)
-screen_size = (1200, 700)
+light_yellow = (255, 255, 0, 20)
+screen_size = (1900, 1000)
 title = "DarkClient"
 font_name = 'freesansbold.ttf'
 font_size = 32
 player_move = 3
 bullet_velocity = 20
-fov_dist = 300
-fov_angle = 50
+fov_dist = 500
+fov_angle = 30
+
+
+def DrawFOV(surface, color, center, radius, startAngle, stopAngle):
+    points = [center]
+    for i in range(int(startAngle), int(stopAngle) + 1):
+        ax, ay = center[0] + radius * math.cos(math.radians(i)), \
+                 center[1] + radius * math.sin(math.radians(i))
+        points.append((ax, ay))
+    points.append(center)
+    pgf.filled_polygon(surface, points, color)
+
 
 class Bullet:
 
@@ -26,7 +39,7 @@ class Bullet:
         self.pos = [x, y]
 
     def draw(self):
-        bullet = font.render("-", True, blue, None)
+        bullet = font.render("-", True, red, None)
         t = bullet.get_rect()
         t.center = (self.pos[0], self.pos[1])
         bullet = p.transform.rotozoom(bullet, self.angle, 1)
@@ -74,7 +87,7 @@ while active:
     text_rect = text.get_rect()
     text_rect.center = (p_x, p_y)
 
-    surf = p.Surface((fov_dist*2, fov_dist*2))
+    surf = p.Surface((fov_dist * 2, fov_dist * 2))
     s_rect = surf.get_rect()
     s_rect.center = (p_x, p_y)
     shifted_x, shifted_y = pos[0] - p_x, pos[1] - p_y
@@ -84,17 +97,19 @@ while active:
     else:
         a = out
     text = p.transform.rotozoom(text, 360 - a, 1)
-    p.draw.arc(screen, yellow, s_rect, math.radians(360 - a - fov_angle), math.radians(360 - a + fov_angle))
+    DrawFOV(screen, light_yellow, (p_x, p_y), fov_dist, a - fov_angle, a + fov_angle)
+    #pgf.pie(screen, int(p_x), int(p_y), fov_dist, int(a - fov_angle), int(a + fov_angle), yellow)
+    # p.draw.arc(screen, yellow, s_rect, math.radians(360 - a - fov_angle), math.radians(360 - a + fov_angle))
     left_angle = 360 - a - fov_angle
     right_angle = 360 - a + fov_angle
-    ax, ay = p_x + fov_dist * math.cos(math.radians(-left_angle)),\
-        p_y + fov_dist * math.sin(math.radians(-left_angle))
-    p.draw.line(screen, yellow, (p_x, p_y), (ax, ay))
+    ax, ay = p_x + fov_dist * math.cos(math.radians(-left_angle)), \
+             p_y + fov_dist * math.sin(math.radians(-left_angle))
+    # p.draw.line(screen, yellow, (p_x, p_y), (ax, ay))
     bx, by = p_x + fov_dist * math.cos(math.radians(-right_angle)), \
-        p_y + fov_dist * math.sin(math.radians(-right_angle))
-    p.draw.line(screen, yellow, (p_x, p_y), (bx, by))
+             p_y + fov_dist * math.sin(math.radians(-right_angle))
+    # p.draw.line(screen, yellow, (p_x, p_y), (bx, by))
     if mouse_pressed:
-        bullets.append(Bullet(p_x, p_y, 360-a))
+        bullets.append(Bullet(p_x, p_y, 360 - a))
         mouse_pressed = False
     for b in bullets:
         b.draw()
