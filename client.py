@@ -13,7 +13,9 @@ title = "DarkClient"
 font_name = 'freesansbold.ttf'
 font_size = 32
 player_move = 3
-bullet_velocity = 5
+bullet_velocity = 20
+fov_dist = 300
+fov_angle = 50
 
 class Bullet:
 
@@ -72,7 +74,7 @@ while active:
     text_rect = text.get_rect()
     text_rect.center = (p_x, p_y)
 
-    surf = p.Surface((500, 500))
+    surf = p.Surface((fov_dist*2, fov_dist*2))
     s_rect = surf.get_rect()
     s_rect.center = (p_x, p_y)
     shifted_x, shifted_y = pos[0] - p_x, pos[1] - p_y
@@ -81,8 +83,16 @@ while active:
         a = out + 360
     else:
         a = out
-    text = p.transform.rotozoom(text, 360-a, 1)
-    p.draw.arc(screen, yellow, s_rect, math.radians(- out - 30), math.radians(-out + 30))
+    text = p.transform.rotozoom(text, 360 - a, 1)
+    p.draw.arc(screen, yellow, s_rect, math.radians(360 - a - fov_angle), math.radians(360 - a + fov_angle))
+    left_angle = 360 - a - fov_angle
+    right_angle = 360 - a + fov_angle
+    ax, ay = p_x + fov_dist * math.cos(math.radians(-left_angle)),\
+        p_y + fov_dist * math.sin(math.radians(-left_angle))
+    p.draw.line(screen, yellow, (p_x, p_y), (ax, ay))
+    bx, by = p_x + fov_dist * math.cos(math.radians(-right_angle)), \
+        p_y + fov_dist * math.sin(math.radians(-right_angle))
+    p.draw.line(screen, yellow, (p_x, p_y), (bx, by))
     if mouse_pressed:
         bullets.append(Bullet(p_x, p_y, 360-a))
         mouse_pressed = False
