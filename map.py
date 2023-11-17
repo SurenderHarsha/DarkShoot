@@ -7,10 +7,15 @@ floor = p.image.load('floor.png')
 floor = p.transform.scale(floor, (box_size, box_size))
 floor2 = p.image.load('floor2.png')
 floor2 = p.transform.scale(floor2, (box_size, box_size))
+floor_dict ={
+    '.': floor,
+    '..': floor2,
+    'P1': floor,
+}
 
 
-map_width = 50
-map_height = 50
+map_width = 100
+map_height = 100
 movable_places = ['.', '..']
 
 H = "P1"

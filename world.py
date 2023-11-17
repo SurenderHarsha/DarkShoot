@@ -1,4 +1,4 @@
-from draw_utils import draw_fov, get_fov_angle, compute_boxes
+from draw_utils import draw_fov, get_fov_angle, compute_boxes, compute_polygon_points
 from settings import *
 import pygame as p
 
@@ -65,7 +65,9 @@ class Player:
     def update(self, screen, keys, pos):
         angle = get_fov_angle(pos)
         s_x, s_y = self.update_map(keys)
-        compute_boxes(screen, self.player_box_x, self.player_box_y, angle, (s_x, s_y), self.old_movable_place)
-        self.draw_player(screen, angle)
-        points = draw_fov(screen, light_yellow, (player_local_x, player_local_y), self.fov_dist,
+
+        points = compute_polygon_points((player_local_x, player_local_y), self.fov_dist,
                           angle - self.fov_angle, angle + self.fov_angle)
+        compute_boxes(screen, self.player_box_x, self.player_box_y, angle, (s_x, s_y), self.old_movable_place, points)
+        self.draw_player(screen, angle)
+        points = draw_fov(screen, light_yellow, points)
